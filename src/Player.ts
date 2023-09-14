@@ -1,5 +1,5 @@
 import Queue from './Queue';
-import darkCord, { darkCordSearchOptions } from './Manager'; // Update this import if needed
+import DarkCord, { DarkCordSearchOptions } from './Manager'; // Update this import if needed
 import shoukaku, {
   LavalinkResponse,
   TrackExceptionEvent,
@@ -21,7 +21,7 @@ class Player {
   private data: Map<any, any>;
   private loop: LoopType;
 
-  constructor(manager: darkCord, options: PlayerOptions) {
+  constructor(manager: DarkCord, options: PlayerOptions) {
     this.manager = manager;
     this.guildId = options.guildId;
     this.voiceId = options.voiceId;
@@ -138,7 +138,7 @@ class Player {
 
   async search(
     query: string,
-    options: darkCordSearchOptions = { engine: this.manager.defaultSearchEngine }
+    options: DarkCordSearchOptions = { engine: this.manager.defaultSearchEngine }
   ): Promise<LavalinkResponse> {
     if (/^https?:\/\//.test(query)) {
       if (options.engine === 'darkCordSpotify') {
@@ -149,7 +149,7 @@ class Player {
       }
       return await this.shoukaku.node.rest.resolve(query);
     }
-    if (options.engine === 'darkCordSpotify') return await this.manager.spotify.search(query);
+    if (options.engine === 'DarkCordSpotify') return await this.manager.spotify.search(query);
     const engineMap = {
       youtube: 'ytsearch',
       youtubemusic: 'ytmsearch',
