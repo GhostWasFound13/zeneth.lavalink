@@ -45,7 +45,7 @@ class DarkCord extends EventEmitter {
     } else { 
       node = this.shoukaku.getNode('auto'); 
     }
-    if (node === null) return console.log('[DarkCord] => No nodes are online.');
+    if (!node) throw new Error('[DarkCord] => No nodes are online.');
 
     const ShoukakuPlayer = await node.joinChannel({
       guildId: options.guildId,
@@ -68,7 +68,7 @@ class DarkCord extends EventEmitter {
   getLeastUsedNode(): Shoukaku {
     const nodes = [...this.shoukaku.nodes.values()];
     const onlineNodes = nodes.filter((node) => node);
-    if (!onlineNodes.length) return console.log("[DarkCord] => No nodes are online.");
+    if (!onlineNodes.length) throw new Error("[DarkCord] => No nodes are online.");
     return onlineNodes.reduce((a, b) => (a.players.size < b.players.size ? a : b));
   }
 
@@ -103,6 +103,17 @@ class DarkCord extends EventEmitter {
       yandex: 'ymsearch'
     };
     return await this.shoukaku.getNode()?.rest.resolve(`${engineMap[options.engine]}:${query}`);
+  }
+
+  async getPlayer(guildId: string): Promise<Player | undefined> {
+    return this.players.get(guildId);
+  }
+
+  async destroyPlayer(guildId: string): Promise<void> {
+    const player = this.getPlayer(guildId);
+    if (!player) return;
+    player.destroy();
+    this.players.delete(guildId);
   }
 
   on(event: keyof DarkCordEvents, listener: (...args: DarkCordEvents[keyof DarkCordEvents]) => any): this {
@@ -151,12 +162,14 @@ export = DarkCord;
  * @prop {'ytsearch' | 'ytmsearch' | 'spsearch' | 'scsearch'} [engine]
  */
 
+
+
 /**
  * @typedef DarkCordEvents
  * @prop {[player: Player, track: shoukaku.Track]} trackStart
  * @prop {[player: Player, track: shoukaku.Track]} trackEnd
  * @prop {[player: Player]} queueEnd
- * @prop {[player: Player, data: shoukaku.WebSocketClosedEvent]} PlayerClosed
+ * @prop {[player: Player,  data: shoukaku.WebSocketClosedEvent]} PlayerClosed
  * @prop {[player: Player, data: shoukaku.TrackExceptionEvent]} trackException
  * @prop {[player: Player, data: shoukaku.PlayerUpdate]} PlayerUpdate
  * @prop {[player: Player, data: shoukaku.TrackStuckEvent]} trackStuck
