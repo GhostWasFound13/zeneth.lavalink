@@ -7,9 +7,9 @@ import shoukaku, {
   TrackStuckEvent,
   WebSocketClosedEvent, // Make sure to import these event types
 } from 'shoukaku';
-
+import { Snowflake } from 'zeneth';
 class Player {
-  private manager: FerraLink;
+  private manager: DarkCord;
   private guildId: string;
   private voiceId: string;
   private textId: string;
@@ -41,7 +41,19 @@ class Player {
       this.manager.emit('trackStart', this, this.queue.current);
     });
 
-    this.shoukaku.on('end', () => {
+    this.shoukaku.on('end', (data) => {
+      if (this.state === PlayerState.DESTROYING || this.state === PlayerState.DESTROYED)
+        return this.manager.emit('Debug', `Player ${this.guildId} destroyed from end event`);
+
+      if (data.reason === 'REPLACED') return this.manager.emit('PlayerEnd', this);
+      if (['LOAD_FAILED', 'CLEAN_UP'].includes(data.reason)) {
+        this.queue.previous = this.queue.current;
+        this.playing = false;
+        if (!this.queue.length) return this.manager.emit('PlayerEmpty', this);
+        this.manager.emit('PlayerEnd', this, this.queue.current);
+        this.queue.current = null;
+        return this.play();
+      }
       if (this.loop === 'track' && this.queue.current)
         this.queue.unshift(this.queue.current);
       if (this.loop === 'queue' && this.queue.current)
@@ -175,6 +187,10 @@ class Player {
   }
 
   disconnect(): Player {
+   if (this.state === PlayerState.DISCONNECTED || !this.voiceId)
+      throw new Error('[core] => Player is already disconnected');
+    this.state = PlayerState.DISCONNECTING;
+ 
     this.pause(true);
     const data = {
       op: 4,
@@ -188,15 +204,24 @@ class Player {
     const guild = this.manager.shoukaku.connector.client.guilds.cache.get(this.guildId);
     if (guild) guild.shard.send(data);
     this.voiceId = null;
+    this.state = PlayerState.DISCONNECTED;
+
+    this.manager.emit('Debug', `Player disconnected; Guild id: ${this.guildId}`);
+
     return this;
   }
 
   destroy(): void {
     this.disconnect();
+    this.state = PlayerState.DESTROYED;
     this.shoukaku.connection.disconnect();
     this.shoukaku.removeAllListeners();
     this.manager.players.delete(this.guildId);
+    
+    this.state = PlayerState.DESTROYED;
     this.manager.emit('PlayerDestroy', this);
+    this.manager.emit('Debug', `Player destroyed; Guild id: ${this.guildId}`);
+
   }
 }
 
