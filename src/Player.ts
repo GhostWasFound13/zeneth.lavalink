@@ -211,7 +211,7 @@ class Player {
     return this;
   }
 
-  destroy(): void {
+  destroy(): Player {
     this.disconnect();
     this.state = PlayerState.DESTROYED;
     this.shoukaku.connection.disconnect();
