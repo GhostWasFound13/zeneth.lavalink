@@ -137,7 +137,7 @@ class Spotify {
         : playlist.tracks.items;
 
       const unresolvedPlaylistTracks = await Promise.all(
-        limitedTracks.map((x) => this.buildUnresolved(x.track))
+        limitedTracks.map((x: any) => this.buildUnresolved(x.track))
       );
 
       return this.buildResponse('PLAYLIST_LOADED', unresolvedPlaylistTracks, playlist.name);
@@ -160,7 +160,7 @@ class Spotify {
         : album.tracks.items;
 
       const unresolvedPlaylistTracks = await Promise.all(
-        limitedTracks.map((x) => this.buildUnresolved(x))
+        limitedTracks.map((x: any) => this.buildUnresolved(x))
       );
       return this.buildResponse('PLAYLIST_LOADED', unresolvedPlaylistTracks, album.name);
     } catch (e) {
@@ -186,7 +186,7 @@ class Spotify {
         : data.tracks;
 
       const unresolvedPlaylistTracks = await Promise.all(
-        limitedTracks.map((x) => this.buildUnresolved(x))
+        limitedTracks.map((x: any) => this.buildUnresolved(x))
       );
 
       return this.buildResponse('PLAYLIST_LOADED', unresolvedPlaylistTracks, artist.name);
@@ -222,7 +222,7 @@ class Spotify {
         `/search/?q="${query}"&type=artist,album,track&market=${this.options.searchMarket ?? 'US'}`
       );
       const unresolvedTracks = await Promise.all(
-        data.tracks.items.map((x) => this.buildUnresolved(x))
+        data.tracks.items.map((x: any) => this.buildUnresolved(x))
       );
       return this.buildResponse('TRACK_LOADED', unresolvedTracks);
     } catch (e) {
@@ -236,7 +236,7 @@ class Spotify {
   }
 
   async fetchPlaylistTracks(spotifyPlaylist: unknown): Promise<void> {
-    let nextPage = spotifyPlaylist.tracks.next;
+    let nextPage = (spotifyPlaylist as any).tracks.next;
     let pageLoaded = 1;
     while (nextPage) {
       if (!nextPage) break;
@@ -245,7 +245,7 @@ class Spotify {
       });
       const body = await req.json();
       if (body.error) break;
-      spotifyPlaylist.tracks.items.push(...body.items);
+      (spotifyPlaylist as any).tracks.items.push(...body.items);
 
       nextPage = body.next;
       pageLoaded++;
@@ -273,8 +273,8 @@ class Spotify {
   }
 
   async fetchMetaData(track: Track): Promise<Track> {
-    const fetch = await this.manager.search(`${track.info.title} ${track.info.author}` as Track, {} as DarkCordSearchOptions);
-    return fetch.tracks[0];
+    const fetchResult = await this.manager.search(`${track.info.title} ${track.info.author}` as Track, {} as DarkCordSearchOptions);
+    return fetchResult.tracks[0];
   }
 
   async buildTrack(unresolvedTrack: LavalinkResponse): Promise<LavalinkResponse> {
