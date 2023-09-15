@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Shoukaku, NodeOptions } from 'shoukaku';
 import Player from './Player';
-import Spotify from './module/Spotify';
+import Spotify from './Plugin/Spotify';
 
 class DarkCord extends EventEmitter {
   private shoukaku: Shoukaku;
