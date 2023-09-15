@@ -1,0 +1,34 @@
+{
+  "name": "DarkCord",
+  "version": "0.4.8",
+  "description": "A powerful Lavalink wrapper for Node.js made with Shoukaku.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
+  },
+  "author": "fark",
+  "license": "MIT",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": "",
+  "dependencies": {
+    "shoukaku": "^3.4.0",
+    "undici": "^5.22.1"
+    "zeneth": "^0.0.1",
+  },
+  "engines": {
+    "node": ">=16.9.0"
+  },
+  "keywords": [
+    "lavalink",
+    "lavalink wrapper",
+    "discord",
+    "music",
+    "discord.js"
+  ],
+  "devDependencies": {
+    "typescript": "^4.8.4"
+  }
+}
