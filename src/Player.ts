@@ -7,7 +7,7 @@ import shoukaku, {
   TrackStuckEvent,
   WebSocketClosedEvent, // Make sure to import these event types
 } from 'shoukaku';
-import { Snowflake } from 'zeneth';
+
 class Player {
   private manager: DarkCord;
   private guildId: string;
