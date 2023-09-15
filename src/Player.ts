@@ -104,6 +104,8 @@ class Player {
   }
 
   skip(): Player {
+    if (this.state === PlayerState.DESTROYED) throw new Error('[core]Player is already destroyed');
+
     this.shoukaku.stopTrack();
     return this;
   }
